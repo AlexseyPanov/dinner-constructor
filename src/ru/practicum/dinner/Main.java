@@ -1,6 +1,7 @@
 package ru.practicum.dinner;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -8,14 +9,17 @@ public class Main {
 
     static DinnerConstructor dc;
     static Scanner scanner;
+    static Combo res;
 
     public static void main(String[] args) {
         dc = new DinnerConstructor();
         scanner = new Scanner(System.in);
+        res = new Combo();
 
         while (true) {
             printMenu();
             String command = scanner.nextLine();
+            command = command.trim();
 
             switch (command) {
                 case "1":
@@ -64,9 +68,12 @@ public class Main {
 
     private static void generateDishCombo() {
         ArrayList<String> typesOfDishes = new ArrayList<>();
+
         Random random = new Random();
         int indexRandomDines = 0;
         String combo;
+        int idx = 0;
+        res.clear();
 
         System.out.println("Начинаем конструировать обед...");
 
@@ -90,15 +97,28 @@ public class Main {
             }
         }
         // сгенерируйте комбинации блюд и выведите на экран
-        for (int i = 0; i < numberOfCombos; i++) {
-            System.out.print("Комбинация блюд " + (i + 1));
-            combo = "";
-            for (int j = 0; j < typesOfDishes.size(); j++) {
-                indexRandomDines = random.nextInt(dc.dinner.get(typesOfDishes.get(j)).size());
-                combo = combo + " " + dc.dinner.get(typesOfDishes.get(j)).get(indexRandomDines);
+        idx = 0;
+        for (int i = 1; i <= numberOfCombos; i++) {
+            while (true) {
+                combo = "";
+                for (int j = 0; j < typesOfDishes.size(); j++) {
+                    indexRandomDines = random.nextInt(dc.dinner.get(typesOfDishes.get(j)).size());
+                    combo = combo + " " + dc.dinner.get(typesOfDishes.get(j)).get(indexRandomDines);
+                }
+                if (!res.checkComboHash(i, combo)) {
+                    res.addCombo(i, combo);
+                    idx = 0;
+                    break;
+                } else {
+                    System.out.println("Попробуем еще раз. Получилась комбинация которая уже есть: " + combo);
+                    idx = idx + 1;
+                    if (idx >= 50) {
+                        System.out.println("Не смогли определить комбинации!");
+                        return;
+                    }
+                }
             }
-            System.out.println(": " + combo);
         }
-        System.out.println("--------------------------------");
+        res.printAllDishesByType();
     }
 }
