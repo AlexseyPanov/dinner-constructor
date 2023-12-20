@@ -1,20 +1,16 @@
 package ru.practicum.dinner;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
 
     static DinnerConstructor dc;
     static Scanner scanner;
-    static Combo res;
 
     public static void main(String[] args) {
         dc = new DinnerConstructor();
         scanner = new Scanner(System.in);
-        res = new Combo();
 
         while (true) {
             printMenu();
@@ -67,58 +63,25 @@ public class Main {
     }
 
     private static void generateDishCombo() {
-        ArrayList<String> typesOfDishes = new ArrayList<>();
-
-        Random random = new Random();
-        int indexRandomDines = 0;
-        String combo;
-        int idx = 0;
-        res.clear();
-
         System.out.println("Начинаем конструировать обед...");
-
         System.out.println("Введите количество наборов, которые нужно сгенерировать:");
         int numberOfCombos = scanner.nextInt();
         scanner.nextLine();
-
-        while (true) {
-            System.out.println("Вводите типы блюда, разделяя символом переноса строки (enter). Для завершения ввода введите пустую строку");
-            String nextItem = scanner.nextLine();
-
-            if (!nextItem.isEmpty()) {
-                if (dc.checkType(nextItem)) {
-                    System.out.println("Такой тип есть! Добавим тип " + nextItem);
-                    typesOfDishes.add(nextItem);
-                } else {
-                    System.out.println("Такого типа нет! Попробуйте еще раз.");
-                }
+        System.out.println("Вводите типы блюда, разделяя символом переноса строки (enter). Для завершения ввода введите пустую строку");
+        String nextItem = scanner.nextLine();
+        ArrayList<String> selectedTypes = new ArrayList<>();
+        while (!nextItem.isEmpty()) {
+            if (dc.checkType(nextItem)) {
+                selectedTypes.add(nextItem);
             } else {
-                break;
+                System.out.println("Такой тип блюд мы еще не умеем готовить. Попробуйте что-нибудь другое!");
             }
+            nextItem = scanner.nextLine();
         }
-        // сгенерируйте комбинации блюд и выведите на экран
-        idx = 0;
+        ArrayList<ArrayList<String>> generatedCombos = dc.generateCombos(numberOfCombos, selectedTypes);
         for (int i = 1; i <= numberOfCombos; i++) {
-            while (true) {
-                combo = "";
-                for (int j = 0; j < typesOfDishes.size(); j++) {
-                    indexRandomDines = random.nextInt(dc.dinner.get(typesOfDishes.get(j)).size());
-                    combo = combo + " " + dc.dinner.get(typesOfDishes.get(j)).get(indexRandomDines);
-                }
-                if (!res.checkComboHash(i, combo)) {
-                    res.addCombo(i, combo);
-                    idx = 0;
-                    break;
-                } else {
-                    System.out.println("Попробуем еще раз. Получилась комбинация которая уже есть: " + combo);
-                    idx = idx + 1;
-                    if (idx >= 50) {
-                        System.out.println("Не смогли определить комбинации!");
-                        return;
-                    }
-                }
-            }
+            System.out.println("Комбинация блюд " + i);
+            System.out.println(generatedCombos.get(i - 1));
         }
-        res.printAllDishesByType();
     }
 }
